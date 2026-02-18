@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+:root {
+  --sage: #6b7b6b;
+  --sage-light: #8a9a8a;
+  --sage-lighter: #b5c4b5;
+  --sage-dark: #4a5a4a;
+  --sage-darker: #3a4a3a;
+  --cream: #fafaf8;
+  --warm-white: #f5f5f2;
+  --warm-gray: #ededea;
+  --text: #2c3e2c;
+  --text-light: #5a6b5a;
+  --text-lighter: #7a8b7a;
+  --white: #ffffff;
+  --accent: #4a6741;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--cream);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-body), "Inter", sans-serif;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), "Cormorant Garamond", Georgia, serif;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+a:not([class]) {
+  color: inherit;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--sage-lighter) 60%, white 40%);
+  color: var(--text);
+}
+
+.surface-card {
+  background: var(--white);
+  border: 1px solid color-mix(in srgb, var(--sage) 20%, white 80%);
+  box-shadow: 0 20px 50px -35px rgba(58, 74, 58, 0.45);
+}
+
+.soft-kicker {
+  color: var(--sage-dark);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
