@@ -110,7 +110,9 @@ function PersonIcon(props: SVGProps<SVGSVGElement>) {
 export function LandingPage() {
   const reduceMotion = useReducedMotion() ?? false;
   const [orbitRadius, setOrbitRadius] = useState(132);
+  const [chaosScale, setChaosScale] = useState(1);
   const [isConnected, setIsConnected] = useState(false);
+  const [chaosVisible, setChaosVisible] = useState(false);
 
   const orbitTriggerRef = useRef<HTMLDivElement | null>(null);
   const morningRef = useRef<HTMLElement | null>(null);
@@ -119,7 +121,8 @@ export function LandingPage() {
   const ctaRef = useRef<HTMLElement | null>(null);
   const footerRef = useRef<HTMLElement | null>(null);
 
-  const morningInView = useInView(morningRef, { once: true, amount: 0.25 });
+  const orbitInView = useInView(orbitTriggerRef, { once: true, amount: 0.3 });
+  const morningInView = useInView(morningRef, { once: true, amount: 0.4 });
   const promisesInView = useInView(promisesRef, { once: true, amount: 0.2 });
   const trustInView = useInView(trustRef, { once: true, amount: 0.2 });
   const ctaInView = useInView(ctaRef, { once: true, amount: 0.4 });
@@ -128,14 +131,17 @@ export function LandingPage() {
   useEffect(() => {
     const updateRadius = () => {
       if (window.innerWidth < 640) {
-        setOrbitRadius(110);
+        setOrbitRadius(100);
+        setChaosScale(0.5);
         return;
       }
       if (window.innerWidth < 1024) {
         setOrbitRadius(152);
+        setChaosScale(0.75);
         return;
       }
       setOrbitRadius(190);
+      setChaosScale(1);
     };
 
     updateRadius();
@@ -143,24 +149,42 @@ export function LandingPage() {
     return () => window.removeEventListener("resize", updateRadius);
   }, []);
 
-  // Trigger chaos → connected on scroll (any scroll beyond 60px)
+  // Phase 1: When orbit scrolls into view → show chaos
   useEffect(() => {
     if (reduceMotion) {
+      setChaosVisible(true);
       setIsConnected(true);
       return;
     }
-    const handleScroll = () => {
-      if (window.scrollY > 60) {
-        setIsConnected(true);
-        window.removeEventListener("scroll", handleScroll);
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [reduceMotion]);
+    if (orbitInView && !chaosVisible) {
+      setChaosVisible(true);
+    }
+  }, [orbitInView, chaosVisible, reduceMotion]);
+
+  // Phase 2: 2s after chaos is visible → Luma connects
+  useEffect(() => {
+    if (!chaosVisible || isConnected || reduceMotion) return;
+    const timer = setTimeout(() => setIsConnected(true), 2000);
+    return () => clearTimeout(timer);
+  }, [chaosVisible, isConnected, reduceMotion]);
 
   return (
     <main className="overflow-x-clip bg-[var(--cream)] text-[var(--text)]">
+      {/* ─── NAV ─── */}
+      <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-5 py-3 sm:px-8 sm:py-4">
+        <Link href="https://petaluma.ai" className="flex items-center gap-2 opacity-70 transition hover:opacity-100">
+          <Image src="/petal-mark.png" alt="Petaluma AI" width={496} height={287} className="h-6 w-auto sm:h-7" />
+          <span className="text-xs font-medium tracking-[0.08em] text-[var(--sage-dark)] sm:text-sm">petaluma.ai</span>
+        </Link>
+        <Link
+          href="mailto:contact@petaluma.ai?subject=Wine%20AI%20Impact%20Audit"
+          className="rounded-md bg-[var(--sage-dark)] px-4 py-1.5 text-xs font-medium tracking-[0.02em] sm:text-sm"
+          style={{ color: "white" }}
+        >
+          Book an Audit
+        </Link>
+      </nav>
+
       {/* ─── HERO ─── */}
       <section className="relative isolate min-h-screen">
         <div className="pointer-events-none absolute inset-0 -z-10 opacity-80">
@@ -238,9 +262,11 @@ export function LandingPage() {
               animate={
                 isConnected
                   ? { opacity: 0, scale: 0.6 }
-                  : { opacity: 1, scale: 1 }
+                  : chaosVisible
+                    ? { opacity: 1, scale: 1 }
+                    : { opacity: 0, scale: 0.8 }
               }
-              transition={{ duration: isConnected ? 0.4 : 0.6, delay: isConnected ? 0 : 0.9, ease: smoothEase }}
+              transition={{ duration: isConnected ? 0.4 : 0.6, delay: isConnected ? 0 : 0.3, ease: smoothEase }}
               className="absolute z-20 flex flex-col items-center gap-2"
             >
               <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-[var(--sage-lighter)] bg-[var(--warm-white)] sm:h-20 sm:w-20">
@@ -249,11 +275,11 @@ export function LandingPage() {
               <span className="text-xs font-medium tracking-[0.1em] text-[var(--text-lighter)]">YOU</span>
             </motion.div>
 
-            {/* Luma center circle — appears when scroll triggers connection */}
+            {/* Luma center circle — appears when connected */}
             <motion.div
               initial={reduceMotion ? { opacity: 1, scale: 1 } : { scale: 0, opacity: 0 }}
               animate={isConnected ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 0.5, ease: "easeOut" }}
+              transition={{ duration: reduceMotion ? 0 : 0.5, delay: reduceMotion ? 0 : 0.1, ease: "easeOut" }}
               className="absolute z-20 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--sage-dark)] sm:h-20 sm:w-20"
             >
               <Image src="/petal-mark.png" alt="Luma" width={496} height={287} className="h-8 w-auto brightness-[10] sm:h-10" />
@@ -284,12 +310,13 @@ export function LandingPage() {
               );
             })}
 
-            {/* Tool icons — chaos on load, orbit on scroll */}
+            {/* Tool icons — chaos when visible, orbit when connected */}
             {heroTools.map((tool, index) => {
               const angle = (index / heroTools.length) * Math.PI * 2 - Math.PI / 2;
               const orbitX = Math.cos(angle) * orbitRadius;
               const orbitY = Math.sin(angle) * orbitRadius;
-              const chaos = chaosOffsets[index];
+              const raw = chaosOffsets[index];
+              const chaos = { x: raw.x * chaosScale, y: raw.y * chaosScale, rotate: raw.rotate };
               const ToolIcon = tool.Icon;
 
               return (
@@ -304,12 +331,14 @@ export function LandingPage() {
                   animate={
                     isConnected
                       ? { x: orbitX, y: orbitY, opacity: 1, rotate: 0, scale: 1 }
-                      : { x: chaos.x, y: chaos.y, opacity: 1, rotate: chaos.rotate, scale: 0.84 }
+                      : chaosVisible
+                        ? { x: chaos.x, y: chaos.y, opacity: 1, rotate: chaos.rotate, scale: 0.84 }
+                        : { x: chaos.x, y: chaos.y, opacity: 0, rotate: chaos.rotate, scale: 0.84 }
                   }
                   transition={
                     isConnected
                       ? { duration: 1.0, delay: 0.25 + index * 0.06, ease: smoothEase }
-                      : { duration: 0.6, delay: 0.5 + index * 0.08, ease: smoothEase }
+                      : { duration: 0.6, delay: 0.3 + index * 0.06, ease: smoothEase }
                   }
                 >
                   <motion.div
@@ -350,8 +379,8 @@ export function LandingPage() {
           {/* Scroll hint */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={isConnected ? { opacity: 0 } : { opacity: 1 }}
-            transition={{ duration: 0.5, delay: isConnected ? 0 : 2.5 }}
+            animate={chaosVisible ? { opacity: 0 } : { opacity: 1 }}
+            transition={{ duration: 0.5, delay: chaosVisible ? 0 : 1.5 }}
             className="mt-4"
           >
             <motion.div
