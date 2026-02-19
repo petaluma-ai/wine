@@ -171,7 +171,7 @@ export function LandingPage() {
   return (
     <main className="overflow-x-clip bg-[var(--cream)] text-[var(--text)]">
       {/* ─── NAV ─── */}
-      <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between px-5 py-3 sm:px-8 sm:py-4">
+      <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between bg-[var(--cream)]/95 backdrop-blur-sm px-5 py-3 sm:px-8 sm:py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <Link href="https://petaluma.ai" className="flex items-center gap-2 opacity-70 transition hover:opacity-100">
           <Image src="/petal-mark.png" alt="Petaluma AI" width={496} height={287} className="h-6 w-auto sm:h-7" />
           <span className="text-xs font-medium tracking-[0.08em] text-[var(--sage-dark)] sm:text-sm">petaluma.ai</span>
@@ -499,7 +499,7 @@ export function LandingPage() {
               </h3>
               <p className="mt-4 text-[0.98rem] text-[var(--text-light)]">
                 Luma analyzes purchase patterns, engagement, and club activity to flag at-risk members.
-                Then it drafts a personalized save.
+                Then it drafts a personalized rescue.
               </p>
 
               <div className="mt-6 space-y-2 rounded-xl border border-[color:color-mix(in_srgb,var(--sage)_14%,white_86%)] bg-[var(--warm-white)] p-3">
