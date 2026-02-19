@@ -702,26 +702,10 @@ export function LandingPage() {
       {/* ─── FOOTER ─── */}
       <footer ref={footerRef} className="px-6 pb-16 pt-8 text-center sm:px-10">
         <motion.div {...revealMotion(reduceMotion, footerInView)} className="mx-auto max-w-3xl">
-          <motion.div
-            animate={reduceMotion ? undefined : { scale: [1, 1.03, 1], rotate: [0, 0.4, 0, -0.4, 0] }}
-            transition={reduceMotion ? undefined : { duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-            className="mx-auto w-14"
-          >
-            <Image src="/petal-mark.png" alt="Petaluma AI mark" width={496} height={287} className="h-auto w-full" />
-          </motion.div>
-
-          <p className="mt-4 text-sm tracking-[0.08em] text-[var(--text-light)]">
-            Petaluma AI — Named after the place we call home.
+          <Image src="/petal-mark.png" alt="Petaluma AI" width={496} height={287} className="mx-auto h-10 w-auto" />
+          <p className="mt-4 text-sm text-[var(--text-lighter)]">
+            © 2026 Petaluma AI · San Francisco Bay Area
           </p>
-          <p className="mt-1 text-sm text-[var(--text-lighter)]">Sonoma County, California</p>
-          <Link
-            href="https://petaluma.ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block text-sm font-medium text-[var(--sage-dark)] underline-offset-4 transition hover:underline"
-          >
-            petaluma.ai
-          </Link>
         </motion.div>
       </footer>
     </main>
